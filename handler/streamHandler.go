@@ -84,7 +84,7 @@ func CloseRoom(c *gin.Context){
 	roomName = roomName[1: len(roomName) -1]
 
 	_, err := roomClient.DeleteRoom(context.Background(), &livekit.DeleteRoomRequest{
-		Room : "test",
+		Room : roomName,
 	})
 
 	if err != nil {

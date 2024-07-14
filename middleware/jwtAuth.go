@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"log"
-	"synapse/stream/auth"
+	"synapse/auth"
 	"github.com/gin-gonic/gin"
 )
 

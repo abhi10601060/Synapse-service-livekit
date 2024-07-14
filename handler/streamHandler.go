@@ -166,3 +166,15 @@ func JoinRoomAsViewer(c *gin.Context){
 		"message" : "stream join token generated successfully for : " + pid,
 	})
 }
+
+func GetAllActiveStreams(c *gin.Context){
+	rooms, err := roomClient.ListRooms(context.Background(), &livekit.ListRoomsRequest{})
+	if err != nil {
+		log.Println("Error in fetching list of rooms : ", err)
+		c.Abort()
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"rooms" : rooms.Rooms,
+	})
+}

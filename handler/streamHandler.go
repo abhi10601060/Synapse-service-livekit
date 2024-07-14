@@ -7,8 +7,10 @@ import (
 	"net/http"
 	"strings"
 	"synapse/util"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/livekit/protocol/auth"
 	"github.com/livekit/protocol/livekit"
 	lksdk "github.com/livekit/server-sdk-go/v2"
 )
@@ -59,10 +61,12 @@ func CreateRoom(c *gin.Context) {
 		c.Abort()
 		return
 	}
-	c.JSON(http.StatusOK,
-	gin.H{
-		"message" : "Room created successFully : " + room.Name, 
-	})
+	// c.JSON(http.StatusOK,
+	// gin.H{
+	// 	"message" : "Room created successFully : " + room.Name, 
+	// })
+
+    JoinRoomAsStreamer(c, room.Name, userName)
 }
 
 func CloseRoom(c *gin.Context){
@@ -100,4 +104,65 @@ func CloseRoom(c *gin.Context){
 		gin.H{
 			"message" : "stream closed successfully : " + roomName,
 		})
+}
+
+func JoinRoomAsStreamer(c *gin.Context, roomName, userName string){
+	at := auth.NewAccessToken(API_KEY, SECRET)
+	grant := &auth.VideoGrant{
+		Room: roomName,
+		RoomAdmin: true,
+		RoomJoin: true,
+	}
+	at.AddGrant(grant).SetIdentity(userName).SetValidFor(24 * time.Hour)
+	streamAccessToken, err :=  at.ToJWT()
+	if err != nil {
+		log.Println("Error in Jwt token gneration for room " + roomName + " : " , err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message" : "Error during stream token generation",
+		})
+		c.Abort()
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"token" : streamAccessToken,
+		"message" : "Room created successfully with streamer",
+	})
+}
+
+func JoinRoomAsViewer(c *gin.Context){
+	tokenStr := c.Request.Header.Get("Authentication-Token")
+
+	userName := util.GetUserNameFromToken(tokenStr)
+
+	pid, isExist := c.Params.Get("pid")
+	if !isExist {
+		log.Println("Pid is empty for joining")
+		c.Abort()
+		return
+	}
+	pid = strings.TrimSpace(pid)
+
+	at := auth.NewAccessToken(API_KEY, SECRET)
+	grant := &auth.VideoGrant{
+		Room: pid,
+		RoomAdmin: false,
+		RoomJoin: true,
+	}
+	at.AddGrant(grant).SetIdentity(userName).SetValidFor(24 * time.Hour)
+
+	streamAccessToken, err :=  at.ToJWT()
+	if err != nil {
+		log.Println("Error in Jwt token gneration for room " + pid + " : " , err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message" : "Error during stream token generation",
+		})
+		c.Abort()
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"token" : streamAccessToken,
+		"message" : "stream join token generated successfully for : " + pid,
+	})
 }

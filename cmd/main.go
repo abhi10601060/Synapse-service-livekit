@@ -18,8 +18,9 @@ func main() {
 	{
 		stream.POST("start", handler.CreateRoom)
 		stream.POST("stop", handler.CloseRoom)
+		stream.GET("/join/:pid", handler.JoinRoomAsViewer)
 	}
-
+ 
 	log.Fatal(r.Run(":8010"))
 }
 

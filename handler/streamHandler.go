@@ -61,11 +61,7 @@ func CreateRoom(c *gin.Context) {
 		c.Abort()
 		return
 	}
-	// c.JSON(http.StatusOK,
-	// gin.H{
-	// 	"message" : "Room created successFully : " + room.Name, 
-	// })
-
+	
     JoinRoomAsStreamer(c, room.Name, userName)
 }
 
@@ -146,6 +142,7 @@ func JoinRoomAsViewer(c *gin.Context){
 	at := auth.NewAccessToken(API_KEY, SECRET)
 	grant := &auth.VideoGrant{
 		Room: pid,
+		RoomCreate: false,
 		RoomAdmin: false,
 		RoomJoin: true,
 	}

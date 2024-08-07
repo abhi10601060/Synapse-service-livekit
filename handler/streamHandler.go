@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"synapse/awshelper"
 	"synapse/model"
 	"synapse/util"
 	"time"
@@ -56,6 +57,17 @@ func CreateRoom(c *gin.Context) {
 
 	roomId := userName + "-" + uuid.NewString()
 	log.Println("created room Id is  : ", roomId)
+
+	awsErr := awshelper.S3ServiceObject.UploadBase64(streamInput.Thumbnail, roomTitle)
+	if awsErr != nil {
+		log.Println("error during uploading thumbnail : " , err)
+		c.JSON(http.StatusInternalServerError,
+			gin.H{
+				"message" : "Error during uploading thumbnail.",
+			})
+		c.Abort()
+		return
+	}
 
 	room, err := roomClient.CreateRoom(context.Background(), &livekit.CreateRoomRequest{
 		Name: roomId,

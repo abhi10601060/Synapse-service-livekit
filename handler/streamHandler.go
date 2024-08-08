@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 	"synapse/awshelper"
+	"synapse/db"
 	"synapse/model"
 	"synapse/util"
 	"time"
@@ -51,14 +52,13 @@ func CreateRoom(c *gin.Context) {
 		c.Abort()
 		return
 	}
-	log.Println("received StreamInput: ", streamInput)
-	roomTitle := streamInput.Title
-	log.Println("room name fetched from body is : ", roomTitle)
+	log.Println("room name fetched from body is : ", streamInput.Title)
 
 	roomId := userName + "-" + uuid.NewString()
 	log.Println("created room Id is  : ", roomId)
 
-	awsErr := awshelper.S3ServiceObject.UploadBase64(streamInput.Thumbnail, roomTitle)
+	thumbnailPath := userName + "/" + roomId
+	thumbnailUrl, awsErr := awshelper.S3ServiceObject.UploadBase64(streamInput.Thumbnail, thumbnailPath)
 	if awsErr != nil {
 		log.Println("error during uploading thumbnail : " , err)
 		c.JSON(http.StatusInternalServerError,
@@ -69,9 +69,30 @@ func CreateRoom(c *gin.Context) {
 		return
 	}
 
+	stream := model.Stream{
+		Id: roomId,
+		UserId: userName,
+		Title: streamInput.Title,
+		Desc: streamInput.Desc,
+		Tags: streamInput.Tags,
+		Status: "Live",
+		ThumbnailUrl: thumbnailUrl,
+		CreatedOn: time.Now().Format("01-02-2006 15:04:05"),
+	}
+	dbRes := db.AddStream(&stream)
+	if !dbRes {
+		log.Println("error in storing stream")
+		c.JSON(http.StatusInternalServerError,
+			gin.H{
+				"message" : "Error during stream storing to db",
+			})
+		c.Abort()
+		return
+	}
+
 	room, err := roomClient.CreateRoom(context.Background(), &livekit.CreateRoomRequest{
 		Name: roomId,
-		EmptyTimeout: 10*60,
+		EmptyTimeout: 1*60,
 		MaxParticipants: 80,
 	})
 	if err != nil {

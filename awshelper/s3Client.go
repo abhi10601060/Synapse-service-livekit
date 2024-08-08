@@ -23,8 +23,8 @@ var (
 
 func init(){
 
-	accessKey := "add accessKey"
-	secretKey := "add secret"
+	accessKey := "ACCESS KEY"
+	secretKey := "SECRET KEY"
 	options := s3.Options{
 		Region:     BUCKET_REGION,
 		Credentials: aws.NewCredentialsCache(credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")),
@@ -42,7 +42,7 @@ type S3Service struct {
 	S3Client *s3.Client
 }
 
-func (service S3Service) UploadBase64(b64 string, key string)  error{
+func (service S3Service) UploadBase64(b64 string, key string)  (string, error){
 
 	data := base64.NewDecoder(base64.StdEncoding, strings.NewReader(b64))
 	
@@ -59,10 +59,10 @@ func (service S3Service) UploadBase64(b64 string, key string)  error{
 
 	if  err != nil {
 		log.Println("uploadBase64 : error in thumbnail upload : " , err)
-		return err
+		return "nil", err
 	}
-
-	return nil
+	thumbnailUrl := "https://abhis-s3.s3.ap-south-1.amazonaws.com/" + key
+	return thumbnailUrl, nil
 }
 
 func calcOrigBinaryLength(datas string) int {

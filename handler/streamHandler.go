@@ -122,14 +122,35 @@ func CloseRoom(c *gin.Context) {
 
 	jsonMap := make(map[string]json.RawMessage)
 	c.ShouldBind(&jsonMap)
-	roomName := strings.TrimSpace(string(jsonMap["room"]))
-	log.Println("room name fetched from body is : ", roomName)
-	roomName = roomName[1 : len(roomName)-1]
+	roomId := strings.TrimSpace(string(jsonMap["room"]))
+	log.Println("room name fetched from body is : ", roomId)
+	roomId = roomId[1 : len(roomId)-1]
+	
+	var userNameSize = len(userName)
+	log.Println("userName from Id : ", roomId[0:userNameSize])
+	if userName != roomId[0:userNameSize]{
+		log.Println("unauthorized streamer closing stream...")
+		c.JSON(http.StatusNotAcceptable,
+			gin.H{
+				"message": "unauthorized stream owner closing stream",
+			})
+		c.Abort()
+		return
+	}
+
+	res := db.ChangeStreamStatusToEnded(roomId)
+	if !res {
+		c.JSON(http.StatusInternalServerError,
+			gin.H{
+				"message": "unable to change stream status into db",
+			})
+		c.Abort()
+		return
+	}
 
 	_, err := roomClient.DeleteRoom(context.Background(), &livekit.DeleteRoomRequest{
-		Room: roomName,
+		Room: roomId,
 	})
-
 	if err != nil {
 		log.Println("error in cliosing stream : ", err)
 		c.JSON(http.StatusInternalServerError,
@@ -139,23 +160,24 @@ func CloseRoom(c *gin.Context) {
 		c.Abort()
 		return
 	}
+
 	c.JSON(http.StatusOK,
 		gin.H{
-			"message": "stream closed successfully : " + roomName,
+			"message": "stream closed successfully : " + roomId,
 		})
 }
 
-func JoinRoomAsStreamer(c *gin.Context, roomName, userName string) {
+func JoinRoomAsStreamer(c *gin.Context, roomId, userName string) {
 	at := auth.NewAccessToken(API_KEY, SECRET)
 	grant := &auth.VideoGrant{
-		Room:      roomName,
+		Room:      roomId,
 		RoomAdmin: true,
 		RoomJoin:  true,
 	}
 	at.AddGrant(grant).SetIdentity(userName).SetValidFor(24 * time.Hour)
 	streamAccessToken, err := at.ToJWT()
 	if err != nil {
-		log.Println("Error in Jwt token gneration for room "+roomName+" : ", err)
+		log.Println("Error in Jwt token gneration for room "+roomId+" : ", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error during stream token generation",
 		})
@@ -165,6 +187,7 @@ func JoinRoomAsStreamer(c *gin.Context, roomName, userName string) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"token":   streamAccessToken,
+		"streamId" : roomId,
 		"message": "Room created successfully with streamer",
 	})
 }

@@ -231,13 +231,15 @@ func JoinRoomAsViewer(c *gin.Context) {
 }
 
 func GetAllActiveStreams(c *gin.Context) {
-	rooms, err := roomClient.ListRooms(context.Background(), &livekit.ListRoomsRequest{})
-	if err != nil {
-		log.Println("Error in fetching list of rooms : ", err)
-		c.Abort()
+	streams, isSuccessfull := db.GetAllActiveStreams()
+	if !isSuccessfull {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message" : "Could not get streams from db",
+		})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"rooms": rooms.Rooms,
+		"message" : "live streams fetched successfully",
+		"streams": streams,
 	})
 }

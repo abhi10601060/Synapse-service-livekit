@@ -28,3 +28,14 @@ func ChangeStreamStatusToEnded(roomId string) bool{
 	}
 	return true
 }
+
+func GetAllActiveStreams() ([]model.Stream, bool){
+	var streams []model.Stream
+	res := synapseDb.Where(&model.Stream{Status: "live"}).Find(&streams)
+	if res.Error != nil {
+		log.Println("GetAllActiveStreams : error in listing all active streams : ", res.Error.Error())
+		return nil, false
+	}
+	log.Println("GetAllActiveStreams : listed active streams successFully : ", streams)
+	return streams, true
+}

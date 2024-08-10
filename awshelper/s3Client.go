@@ -59,7 +59,7 @@ func (service S3Service) UploadBase64(b64 string, key string)  (string, error){
 
 	if  err != nil {
 		log.Println("uploadBase64 : error in thumbnail upload : " , err)
-		return "nil", err
+		return "", err
 	}
 	thumbnailUrl := "https://abhis-s3.s3.ap-south-1.amazonaws.com/" + key
 	return thumbnailUrl, nil

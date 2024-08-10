@@ -21,6 +21,13 @@ func main() {
 		stream.GET("/join/:pid", handler.JoinRoomAsViewer)
 		stream.GET("all", handler.GetAllActiveStreams)
 	}
+
+	user := r.Group("/user")
+	{
+		user.POST("/create", handler.CreateUser)
+		user.POST("/update/profile-pic", handler.UpdateProfilePicture)
+		user.POST("/update/bio", handler.UpdateBio)
+	}
  
 	log.Fatal(r.Run(":8010"))
 }

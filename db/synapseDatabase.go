@@ -35,5 +35,8 @@ func connectToSynapseDb() *gorm.DB{
 }
 
 func autoMigrateModels(){
-	synapseDb.AutoMigrate(&model.Stream{})
+	err := synapseDb.AutoMigrate(&model.Stream{}, &model.UserDetails{})
+	if err != nil {
+		log.Println("error in autoMigrating models to database : ", err)
+	}
 }

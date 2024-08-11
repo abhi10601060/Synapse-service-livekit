@@ -23,8 +23,8 @@ var (
 
 func init(){
 
-	accessKey := "ACCESS KEY"
-	secretKey := "SECRET KEY"
+	accessKey := "AKIAW3MEEJDS77T6VACV"
+	secretKey := "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"
 	options := s3.Options{
 		Region:     BUCKET_REGION,
 		Credentials: aws.NewCredentialsCache(credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")),

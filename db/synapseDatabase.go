@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	DB_URL = "DB URL"
+	DB_URL = "avnadmin:AVNS_3zGeELI4YI0-siKTItS@tcp(synapse-db-synapse.g.aivencloud.com:21929)/synapse_db?charset=utf8mb4&parseTime=True&loc=Local"
 )
 
 var (
@@ -35,7 +35,7 @@ func connectToSynapseDb() *gorm.DB{
 }
 
 func autoMigrateModels(){
-	err := synapseDb.AutoMigrate(&model.Stream{}, &model.UserDetails{})
+	err := synapseDb.AutoMigrate(&model.Stream{}, &model.Subscriber{}, &model.User{}, &model.UserDetails{})
 	if err != nil {
 		log.Println("error in autoMigrating models to database : ", err)
 	}

@@ -77,7 +77,7 @@ func CreateRoom(c *gin.Context) {
 		Tags: streamInput.Tags,
 		Status: "Live",
 		ThumbnailUrl: thumbnailUrl,
-		CreatedOn: time.Now().Format("01-02-2006 15:04:05"),
+		CreatedOn: util.GetCurrentTime(),
 	}
 	dbRes := db.AddStream(&stream)
 	if !dbRes {

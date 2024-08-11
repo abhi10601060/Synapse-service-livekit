@@ -27,6 +27,8 @@ func main() {
 		user.POST("/create", handler.CreateUser)
 		user.POST("/update/profile-pic", handler.UpdateProfilePicture)
 		user.POST("/update/bio", handler.UpdateBio)
+		user.POST("/subscribe", handler.SubscribeStreamer)
+		user.POST("/unsubscribe", handler.UnsubscribeStreamer)
 	}
  
 	log.Fatal(r.Run(":8010"))

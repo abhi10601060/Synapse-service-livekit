@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	DB_URL = "avnadmin:AVNS_3zGeELI4YI0-siKTItS@tcp(synapse-db-synapse.g.aivencloud.com:21929)/synapse_db?charset=utf8mb4&parseTime=True&loc=Local"
+	DB_URL = "DB_URL"
 )
 
 var (

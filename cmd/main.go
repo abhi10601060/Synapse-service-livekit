@@ -20,6 +20,10 @@ func main() {
 		stream.POST("stop", handler.CloseRoom)
 		stream.GET("/join/:pid", handler.JoinRoomAsViewer)
 		stream.GET("all", handler.GetAllActiveStreams)
+		stream.POST("/like", handler.LikeStream)
+		stream.POST("/remove-like", handler.RemoveLikeOfStream)
+		stream.POST("/dislike", handler.DislikeStream)
+		stream.POST("/remove-dislike", handler.RemoveDislikeOfStream)
 	}
 
 	user := r.Group("/user")
@@ -30,13 +34,13 @@ func main() {
 		user.POST("/subscribe", handler.SubscribeStreamer)
 		user.POST("/unsubscribe", handler.UnsubscribeStreamer)
 	}
- 
+
 	log.Fatal(r.Run(":8010"))
 }
 
-func pong(c *gin.Context){
-	c.JSON(http.StatusOK, 
+func pong(c *gin.Context) {
+	c.JSON(http.StatusOK,
 		gin.H{
-			"message" : "Synapse is alive",
+			"message": "Synapse is alive",
 		})
 }

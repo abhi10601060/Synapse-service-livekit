@@ -1,6 +1,5 @@
 package model
 
-
 type User struct {
 	Id       string `json:"id" binding:"required" gorm:"primarykey"`
 	Password string `json:"password" binding:"required" gorm:"not null"`
@@ -18,4 +17,5 @@ type UserDetails struct {
 	TotalSubs         int    `json:"totalSubs"`
 	TotalStreams      int    `json:"totalStreams"`
 	CreatedOn         string `json:"createdOn" gorm:"not null"`
+	Status            string `json:"status"`
 }

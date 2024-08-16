@@ -33,6 +33,9 @@ func main() {
 		user.POST("/update/bio", handler.UpdateBio)
 		user.POST("/subscribe", handler.SubscribeStreamer)
 		user.POST("/unsubscribe", handler.UnsubscribeStreamer)
+		user.GET("/subscribers", handler.GetAllSubscribers)
+		user.GET("/subscriptions", handler.GetAllSubscriptions)
+		user.GET("/is-subscribed/:streamerId", handler.IsSubscribed)
 	}
 
 	log.Fatal(r.Run(":8010"))

@@ -39,3 +39,41 @@ func RemoveSubscriber(streamerId, subscriberId string) bool {
 	}
 	return true
 }
+
+func GetAllSubscribers(streamerId string) ([]model.UserDetails, error) {
+	subs := []model.UserDetails{}
+
+	subQuery := synapseDb.Model(&model.Subscriber{}).Distinct("subscriber_id").Where("streamer_id = ?", streamerId)
+
+	res := synapseDb.Where("id IN (?)", subQuery).Find(&subs)
+	if res.Error != nil {
+		log.Println("error in getting subs : ", res.Error.Error())
+		return nil, res.Error
+	}
+	return subs, nil
+}
+
+func GetAllSubscribedStreamers(userId string) ([]model.UserDetails, error) {
+	subs := []model.UserDetails{}
+
+	subQuery := synapseDb.Model(&model.Subscriber{}).Distinct("streamer_id").Where("subscriber_id = ?", userId)
+
+	res := synapseDb.Where("id IN (?)", subQuery).Find(&subs)
+	if res.Error != nil {
+		log.Println("error in getting subscribed streamers : ", res.Error.Error())
+		return nil, res.Error
+	}
+	return subs, nil
+}
+
+func IsSubscribed(streamerId, userId string) (bool, error){
+	var count int64
+
+	res := synapseDb.Model(&model.Subscriber{}).Where("streamer_id = ?", streamerId).Where("subscriber_id = ?", userId).Count(&count)
+	if res.Error != nil {
+		log.Println("IsSubscribed: error in getting is subcribed: ", res.Error.Error())
+		return false, res.Error
+	}
+	log.Println("count in isSubscribed func : " , count)
+	return count > 0 , nil
+}

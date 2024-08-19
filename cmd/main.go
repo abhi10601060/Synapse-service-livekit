@@ -27,7 +27,9 @@ func main() {
 	}
 
 	user := r.Group("/user")
-	{
+	{	
+		user.GET("/details", handler.GetOwnProfileDetail)
+		user.GET("/details/:userId", handler.GetOthersProfileDetail)
 		user.POST("/create", handler.CreateUser)
 		user.POST("/update/profile-pic", handler.UpdateProfilePicture)
 		user.POST("/update/bio", handler.UpdateBio)

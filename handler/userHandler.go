@@ -56,6 +56,50 @@ func CreateUser(c *gin.Context){
 	})
 }
 
+func GetOwnProfileDetail(c *gin.Context){
+	tokenStr := c.Request.Header.Get("Authentication-Token")
+	userId := util.GetUserNameFromToken(tokenStr)
+	if userId == "" {
+		c.JSON(401, gin.H{
+			"message": "In correct Header Token",
+		})
+		c.Abort()
+		return
+	}
+	
+	userDetails, isExist := db.GetUserDetails(userId)
+	if !isExist{
+		c.JSON(http.StatusOK, gin.H{
+			"message" : "user does not exist",
+		})
+		c.Abort()
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message" : "user found",
+		"details" : userDetails,
+	})
+}
+
+func GetOthersProfileDetail(c *gin.Context){
+	userId := c.Param("userId") 
+	
+	userDetails, isExist := db.GetUserDetails(userId)
+	if !isExist{
+		c.JSON(http.StatusOK, gin.H{
+			"message" : "user does not exist",
+		})
+		c.Abort()
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message" : "user found",
+		"details" : userDetails,
+	})
+}
+
 func UpdateProfilePicture(c *gin.Context){
 	tokenStr := c.Request.Header.Get("Authentication-Token")
 	userId := util.GetUserNameFromToken(tokenStr)

@@ -16,6 +16,17 @@ func AddUserDetails(userDetails *model.UserDetails) bool {
 	return true
 }
 
+func GetUserDetails(userId string) (model.UserDetails, bool){
+	userDetail := model.UserDetails{Id: userId}
+
+	res := synapseDb.First(&userDetail)
+	if res.Error != nil {
+		log.Println("Get User Details : error in finding user: ", res.Error.Error())
+		return userDetail, false  
+	}
+	return userDetail, true
+}
+
 func UpdateProfilePictureUrl(id, url string) bool {
 	user := model.UserDetails{Id: id}
 	res := synapseDb.Model(&user).Update("profile_picture_url", url)
